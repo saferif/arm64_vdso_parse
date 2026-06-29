@@ -37,20 +37,18 @@
 
 vdso_syms_init:
 	ldr	x1, [x0]
-	add	x0, x0, #8
 	add	x0, x0, x1, lsl #3
-	add	x0, x0, #8
+	add	x0, x0, #16
 
 .Lskip_envp:
 	ldr	x1, [x0], #8
 	cbnz	x1, .Lskip_envp
 
 .Lfind_vdso:
-	ldp	x1, x2, [x0], #16
+	ldp	x1, x10, [x0], #16		// x10 - VDSO base
 	cbz	x1, .Lfail
 	cmp	x1, #AT_SYSINFO_EHDR
 	b.ne	.Lfind_vdso
-	mov	x10, x2				// x10 - VDSO base
 
 	ldr	w0, [x10]
 	mov32	w1, ELF_MAGIC
@@ -94,7 +92,7 @@ vdso_syms_init:
 	b	.Lparse_ph_cont
 
 .Lph_parsed:
-	cbz	x9, .Lfail
+	cbz	x5, .Lfail
 	cbz	x12, .Lfail
 
 	mov	x13, xzr
@@ -102,8 +100,7 @@ vdso_syms_init:
 	mov	x15, xzr
 
 .Lparse_dynamic:
-	ldr	x0, [x12], #8
-	ldr	x1, [x12], #8
+	ldp	x0, x1, [x12], #16
 	cbz	x0, .Ldynamic_parsed
 
 	cmp	x0, #DT_STRTAB
@@ -129,8 +126,7 @@ vdso_syms_init:
 	cbz	x14, .Lfail
 	cbz	x15, .Lfail
 
-	ldr	w12, [x15]
-	ldr	w0, [x15, #4]
+	ldp	w12, w0, [x15]
 	ldr	w11, [x15, #8]
 	add	x11, x15, x11, lsl #3
 	add	x11, x11, #16
