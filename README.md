@@ -9,17 +9,17 @@ This repo is a hand-written ARM64 assembler implementation of a minimal vDSO par
 Two functions are exported:
 
 ### vdso_syms_init
-`int vdso_syms_init(void *sp)`
+`int vdso_syms_init(void *stack)`
 
 Parses the vDSO ELF image and performs initialization of internal structures.
 
-- *Input:* `sp` – initial value of the program's stack pointer.
+- *Input:* `stack` – initial value of the program's stack pointer.
 - *Returns:* `0` on success, `-1` on failure.
 
 This function *MUST* be called before any call to `vdso_sym`.
 
 ### vdso_sym
-`void* vdso_sym(char *name)`
+`void *vdso_sym(const char *name)`
 
 Looks up a vDSO symbol by name.
 

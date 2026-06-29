@@ -96,8 +96,10 @@ vdso_syms_init:
 	cbz	x12, .Lfail
 
 	mov	x13, xzr
-	mov 	x14, xzr
+	mov	x14, xzr
 	mov	x15, xzr
+
+	mov32	x3, DT_GNU_HASH
 
 .Lparse_dynamic:
 	ldp	x0, x1, [x12], #16
@@ -115,7 +117,6 @@ vdso_syms_init:
 	b	.Lparse_dynamic
 
 .Lcheck_hash:
-	mov32	x3, DT_GNU_HASH
 	cmp	x0, x3
 	b.ne	.Lparse_dynamic
 	add	x15, x1, x9
@@ -131,7 +132,8 @@ vdso_syms_init:
 	add	x11, x15, x11, lsl #3
 	add	x11, x11, #16
 
-	adr	x10, .Lcontext
+	adrp	x10, .Lcontext
+	add	x10, x10, :lo12:.Lcontext
 	stp	x9, x11, [x10], #16
 	stp	w0, w12, [x10], #8
 	stp	x13, x14, [x10] 
@@ -157,7 +159,8 @@ vdso_sym:
 	b	.Lhash_loop
 
 .Lhash_ready:
-	adr	x10, .Lcontext
+	adrp	x10, .Lcontext
+	add	x10, x10, :lo12:.Lcontext
 	ldp	x9, x11, [x10], #16
 	ldp	w15, w12, [x10], #8
 	ldp	x13, x14, [x10]
@@ -192,7 +195,7 @@ vdso_sym:
 	ldrb	w7, [x5], #1
 	ldrb	w12, [x15], #1
 	subs	w7, w7, w12
-	ccmp	w7, wzr, #4, eq
+	ccmp	w12, wzr, #4, eq
 	b.ne	.Lstrcmp
 	cbnz	w7, .Lnot_match
 
@@ -202,8 +205,7 @@ vdso_sym:
 	ret
 
 .Lnot_match:
-	tst	w11, #1
-	b.ne	.Lfail
+	tbnz	w11, #0, .Lfail
 
 	add	x4, x4, #4
 	add	x3, x3, #SYM_SIZE
@@ -212,6 +214,7 @@ vdso_sym:
 // ========================================================= //
 
 .bss
+.balign 8
 .Lcontext:
 	.space 40
 
