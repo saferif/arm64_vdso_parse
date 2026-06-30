@@ -171,7 +171,7 @@ vdso_sym:
 	ldr	w3, [x3]
 	cbz	w3, .Lfail
 
-	orr	w1, w1, #1
+	lsr	w1, w1, #1
 
 	add	x4, x11, x12, lsl #2
 	sub	w5, w3, w15
@@ -183,8 +183,7 @@ vdso_sym:
 .Lwalk_chain:
 	add	x10, x14, x3
 	ldr	w11, [x4]
-	orr	w5, w11, #1
-	cmp	w1, w5
+	cmp	w1, w11, lsr #1
 	b.ne	.Lnot_match
 
 	mov	x5, x0
