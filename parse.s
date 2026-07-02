@@ -165,6 +165,8 @@ vdso_sym:
 	ldp	w15, w12, [x10], #8
 	ldp	x13, x14, [x10]
 
+	cbz	x14, .Lfail
+
 	udiv	w2, w1, w12
 	msub	w2, w2, w12, w1
 	add	x3, x11, x2, lsl #2
